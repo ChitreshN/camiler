@@ -1,12 +1,16 @@
 (*defining helper functions*)
 {
-    type token = INT of int | NONE
+        open Parser        (* The type token is defined in parser.mli *)
+        exception Eof
 }
-(* Define helper regexes *)
-let digit = ['0'-'9']
-let int = '-'? digit+  (* regex for integers *)
-
-rule read_token = 
-    parse
-    | int {INT (int_of_string(Lexing.lexeme lexbuf))}
-    | _ {NONE}
+rule token = parse
+     [' ' '\t']     { token lexbuf }     (* skip blanks *)
+     | ['\n' ]        { EOL }
+     | ['0'-'9']+ as lxm { INT(int_of_string lxm) }
+     | '+'            { PLUS }
+     | '-'            { MINUS }
+     | '*'            { TIMES }
+     | '/'            { DIV }
+     | '('            { LPAREN }
+     | ')'            { RPAREN }
+     | eof            { raise Eof }
